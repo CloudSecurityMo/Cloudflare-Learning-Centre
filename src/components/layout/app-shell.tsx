@@ -49,6 +49,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex items-center gap-1">
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+              <Link href="/progress">Progress</Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
               <Link href="/reference/glossary">Glossary</Link>
             </Button>
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">

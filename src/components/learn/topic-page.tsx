@@ -21,7 +21,7 @@ const DIFFICULTY_COLOR: Record<TopicContent["difficulty"], string> = {
 
 export function TopicPage({ topic }: { topic: TopicContent }) {
   const isComplete = useProgress((s) => !!s.completedTopics[topic.slug]);
-  const markTopicComplete = useProgress((s) => s.markTopicComplete);
+  const toggleTopicComplete = useProgress((s) => s.toggleTopicComplete);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
@@ -45,7 +45,7 @@ export function TopicPage({ topic }: { topic: TopicContent }) {
           size="sm"
           variant={isComplete ? "secondary" : "default"}
           className="mt-1 w-fit gap-1.5"
-          onClick={() => markTopicComplete(topic.slug)}
+          onClick={() => toggleTopicComplete(topic.slug)}
         >
           {isComplete ? <CheckCircle2 className="size-4" /> : <Circle className="size-4" />}
           {isComplete ? "Completed" : "Mark as complete"}

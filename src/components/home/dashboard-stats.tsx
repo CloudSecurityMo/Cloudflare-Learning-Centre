@@ -1,23 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, FlaskConical, LayoutGrid, Wrench } from "lucide-react";
+import { ArrowRight, FlaskConical, LayoutGrid, ListChecks, Wrench } from "lucide-react";
 import { useProgress } from "@/lib/progress";
 import { LEARN_TOPICS } from "@/content/learn";
 import { SCENARIOS } from "@/content/scenarios";
+import { LABS } from "@/lib/labs";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const LAB_SLUGS = [
-  "dns-lab",
-  "waf-lab",
-  "tls-lab",
-  "bot-lab",
-  "request-flow-simulator",
-  "troubleshooting",
-  "architecture-designer",
-];
 
 export function DashboardStats() {
   const completedTopics = useProgress((s) => s.completedTopics);
@@ -50,8 +41,13 @@ export function DashboardStats() {
   return (
     <div className="grid gap-4 md:grid-cols-3">
       <Card className="md:col-span-2">
-        <CardHeader>
+        <CardHeader className="flex-row items-center justify-between space-y-0">
           <CardTitle className="text-sm font-medium text-muted-foreground">Learning Progress</CardTitle>
+          <Button asChild variant="ghost" size="sm" className="h-7 gap-1.5 text-xs">
+            <Link href="/progress">
+              <ListChecks className="size-3.5" /> Full tracker
+            </Link>
+          </Button>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div>
@@ -65,7 +61,7 @@ export function DashboardStats() {
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
             <Stat label="Knowledge Score" value={knowledgeScore === null ? "—" : `${knowledgeScore}%`} />
-            <Stat label="Labs Completed" value={`${labsDone} / ${LAB_SLUGS.length}`} />
+            <Stat label="Labs Completed" value={`${labsDone} / ${LABS.length}`} />
             <Stat label="Scenarios" value={`${scenariosDone} / ${SCENARIOS.length}`} />
             <Stat label="Quiz Attempts" value={String(quizAttempts.length)} />
           </div>

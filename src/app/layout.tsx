@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppShell } from "@/components/layout/app-shell";
+import { ProgressHydrator } from "@/components/progress-hydrator";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
           <TooltipProvider delayDuration={150}>
+            <ProgressHydrator />
             <AppShell>{children}</AppShell>
           </TooltipProvider>
         </ThemeProvider>

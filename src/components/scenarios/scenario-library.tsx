@@ -9,7 +9,7 @@ import { useProgress } from "@/lib/progress";
 
 export function ScenarioLibrary() {
   const completed = useProgress((s) => s.scenariosCompleted);
-  const markScenarioComplete = useProgress((s) => s.markScenarioComplete);
+  const toggleScenarioComplete = useProgress((s) => s.toggleScenarioComplete);
 
   return (
     <Accordion type="single" collapsible className="flex flex-col gap-3">
@@ -55,7 +55,7 @@ export function ScenarioLibrary() {
                   size="sm"
                   variant={isDone ? "secondary" : "outline"}
                   className="w-fit"
-                  onClick={() => markScenarioComplete(s.slug)}
+                  onClick={() => toggleScenarioComplete(s.slug)}
                 >
                   {isDone ? "Completed" : "Mark as reviewed"}
                 </Button>
