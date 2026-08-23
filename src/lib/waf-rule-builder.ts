@@ -45,9 +45,9 @@ export interface Condition {
   value: string;
 }
 
-export type Action = "Block" | "Managed Challenge" | "JS Challenge" | "Skip" | "Log" | "Allow";
+export type Action = "Block" | "Managed Challenge" | "JS Challenge" | "Interactive Challenge" | "Skip" | "Log";
 
-export const ACTIONS: Action[] = ["Block", "Managed Challenge", "JS Challenge", "Skip", "Log", "Allow"];
+export const ACTIONS: Action[] = ["Block", "Managed Challenge", "JS Challenge", "Interactive Challenge", "Skip", "Log"];
 
 function formatValue(field: FieldDef, operator: Operator, value: string): string {
   if (operator === "in") {

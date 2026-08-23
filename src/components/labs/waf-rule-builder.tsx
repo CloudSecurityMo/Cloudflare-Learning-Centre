@@ -28,9 +28,9 @@ const ACTION_TONE: Record<Action, string> = {
   Block: "text-status-block",
   "Managed Challenge": "text-status-challenge",
   "JS Challenge": "text-status-challenge",
+  "Interactive Challenge": "text-status-challenge",
   Skip: "text-status-log",
   Log: "text-status-log",
-  Allow: "text-status-allow",
 };
 
 export function WafRuleBuilder() {
@@ -169,12 +169,12 @@ export function WafRuleBuilder() {
             before applying a real rule.
           </p>
           <p className={ACTION_TONE[action]}>
-            {action === "Block" && "Block: the request is stopped and a block response is returned — nothing downstream sees it."}
-            {action === "Managed Challenge" && "Managed Challenge: Cloudflare picks the least-intrusive challenge based on the client's signals."}
-            {action === "JS Challenge" && "JS Challenge: requires JavaScript execution — filters out simple scripts, adds friction for real users."}
-            {action === "Skip" && "Skip: deliberately bypasses other specified security products for matching traffic — powerful, and easy to over-scope."}
-            {action === "Log" && "Log: takes no blocking action, just records a Security Event — useful for testing a rule before enforcing it."}
-            {action === "Allow" && "Allow: explicitly permits matching traffic, useful to carve out exceptions ahead of a broader block rule."}
+            {action === "Block" && "Block: the request is stopped and a block response (HTTP 403 or 429) is returned — nothing downstream sees it."}
+            {action === "Managed Challenge" && "Managed Challenge (recommended default): Cloudflare dynamically picks the least-intrusive challenge — a non-interactive check, an interactive challenge, or a Private Access Token — based on the client's signals."}
+            {action === "JS Challenge" && "JS Challenge: requires the client to execute JavaScript with no user interaction — filters out simple scripts, adds some friction for real users."}
+            {action === "Interactive Challenge" && "Interactive Challenge: requires the visitor to interact with a challenge page. Older mechanism — Cloudflare recommends Managed Challenge instead unless you have a specific compatibility reason."}
+            {action === "Skip" && "Skip: deliberately bypasses one or more other security products (Managed Rules, Rate Limiting, Super Bot Fight Mode, etc.) for matching traffic. This is the current mechanism for allowlisting trusted traffic — powerful, and easy to over-scope."}
+            {action === "Log" && "Log: takes no blocking action, just records a Security Event — useful for testing a rule before enforcing it. Available on Enterprise plans."}
           </p>
         </div>
       </div>

@@ -24,7 +24,11 @@ export const rateLimiting: TopicContent = {
     },
     {
       heading: "Choosing the right key",
-      body: "Per-IP counting is the default but breaks down behind NAT/CGNAT (many real users share one IP) and is trivially evaded by IP rotation. Per-session or per-authenticated-user counting is more precise for logged-in flows. Per-header counting (e.g. an API key) is appropriate for API rate limiting where you want per-client fairness rather than per-network-address fairness.",
+      body: "Per-IP counting is the default but breaks down behind NAT/CGNAT (many real users share one IP) and is trivially evaded by IP rotation. Per-session or per-authenticated-user counting is more precise for logged-in flows. Per-header counting (e.g. an API key) is appropriate for API rate limiting where you want per-client fairness rather than per-network-address fairness. Note this is plan-gated: Free/Pro can only count by IP; custom counting keys (headers, cookies, query params, JA3/JA4 fingerprint, and more) require Business or Enterprise.",
+    },
+    {
+      heading: "Counters are approximate, not exact",
+      body: "Rate limiting is not designed to let through a precise number of requests. Counting happens across a distributed edge with a propagation delay of up to a few seconds, so a burst can briefly exceed the configured threshold before enforcement catches up. Treat the threshold as 'roughly N per period,' not a hard cap — for a genuinely hard limit, enforce it at the application layer too.",
     },
   ],
   examples: [

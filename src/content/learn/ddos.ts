@@ -30,6 +30,10 @@ export const ddos: TopicContent = {
       heading: "What DDoS protection does not do",
       body: "It does not protect DNS-only (non-proxied) records — those bypass the edge entirely. It does not protect against application logic abuse that looks like normal, low-volume traffic (that's a WAF/business-logic problem). And for non-HTTP TCP/UDP services, network-layer DDoS protection requires Spectrum or Magic Transit, not the standard HTTP proxy.",
     },
+    {
+      heading: "Under Attack Mode: a manual last resort",
+      body: "Under Attack Mode is a one-click, domain-wide setting that adds extra L7 checks by briefly interstitial-challenging every visitor before they reach the site, deciding whether to allow or block them within about five seconds. It's explicitly meant as one of the last resorts during an active attack, not a standing configuration — it pauses normal access for everyone (including legitimate users) and affects site analytics, so it trades user experience for a stronger, blanket check while an attack is actively being mitigated.",
+    },
   ],
   examples: [
     {
@@ -62,5 +66,8 @@ export const ddos: TopicContent = {
     },
   ],
   relatedTopics: ["waf", "rate-limiting", "bot-management"],
-  docs: [{ label: "DDoS Protection — Cloudflare Docs", url: "https://developers.cloudflare.com/ddos-protection/" }],
+  docs: [
+    { label: "DDoS Protection — Cloudflare Docs", url: "https://developers.cloudflare.com/ddos-protection/" },
+    { label: "Under Attack Mode — Cloudflare Docs", url: "https://developers.cloudflare.com/fundamentals/reference/under-attack-mode/" },
+  ],
 };

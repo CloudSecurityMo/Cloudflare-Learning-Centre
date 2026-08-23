@@ -14,10 +14,13 @@ export default function SecurityLayersPage() {
       </div>
 
       <AsciiDiagram className="mb-8">
-        {"Browser -> TLS terminate -> WAF (Managed + Custom) -> Rate Limiting -> Bot Management -> Cache -> Origin\n" +
-          "                                    ^                      ^                ^\n" +
-          "                         \"is this a known attack        \"is this too     \"is this client\n" +
-          "                          or against policy?\"           much volume?\"      even human?\""}
+        {"Browser -> TLS terminate -> WAF Custom Rules -> Rate Limiting -> WAF Managed Rules -> Bot Fight Mode -> Cache -> Origin\n\n" +
+          "  WAF Custom Rules   \"does this violate a policy I defined?\"\n" +
+          "  Rate Limiting      \"is this too much volume from this key?\"\n" +
+          "  WAF Managed Rules  \"is this a known attack signature?\"\n" +
+          "  Bot Fight Mode     \"is this client even human?\"\n\n" +
+          "This is Cloudflare's documented phase order (developers.cloudflare.com/waf/feature-\n" +
+          "interoperability/) — Rate Limiting runs before Managed Rules, which surprises most people."}
       </AsciiDiagram>
 
       <div className="overflow-x-auto rounded-lg border border-border">

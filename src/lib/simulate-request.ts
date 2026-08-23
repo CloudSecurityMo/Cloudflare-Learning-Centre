@@ -114,24 +114,56 @@ export function simulateRequest(req: SimRequest): SimulationResult {
     detail: "Browser-to-edge TLS is terminated here. (Edge-to-origin TLS behavior depends on SSL/TLS mode — see the TLS Lab.)",
   });
 
+  // Cloudflare's fixed phase order is: L7 DDoS -> Custom Rules -> Rate Limiting ->
+  // Managed Rules -> (Super) Bot Fight Mode. This simulator collapses Custom + Managed
+  // Rules into one "WAF" stage (signature/policy check), so the modeled order is
+  // Rate Limiting -> WAF -> Bot, matching where Managed Rules actually sits relative
+  // to Rate Limiting. See: developers.cloudflare.com/waf/feature-interoperability/
   const fullTarget = `${req.path}${req.query ? "?" + req.query : ""} ${req.body}`;
   const sqli = SQLI_PATTERN.test(fullTarget);
   const xss = XSS_PATTERN.test(fullTarget);
 
-  if (sqli || xss) {
+  if (req.highRate) {
     stages.push({
-      stageId: "waf",
-      decision: `BLOCK — Managed Rule matched (${sqli ? "SQL Injection" : "Cross-Site Scripting"})`,
+      stageId: "rateLimit",
+      decision: "BLOCK — threshold exceeded for this key",
       blocked: true,
-      detail: `The request content matched a known attack signature in the Cloudflare Managed Ruleset. The request is blocked here — Bot Management, Rate Limiting, Cache, and the origin never see it.`,
+      detail: "This client has exceeded the configured request threshold for this path within the current window. Rate Limiting runs before the Managed Rules phase, so this can block a request before signature checks even run.",
     });
-    blockedAt = "waf";
+    blockedAt = "rateLimit";
+  } else {
+    stages.push({
+      stageId: "rateLimit",
+      decision: "Under threshold — Allow",
+      blocked: false,
+      detail: "Request volume from this client is within configured limits.",
+    });
+  }
+
+  if (!blockedAt) {
+    if (sqli || xss) {
+      stages.push({
+        stageId: "waf",
+        decision: `BLOCK — Managed Rule matched (${sqli ? "SQL Injection" : "Cross-Site Scripting"})`,
+        blocked: true,
+        detail: "The request content matched a known attack signature in the Cloudflare Managed Ruleset. The request is blocked here — Bot Fight Mode, Cache, and the origin never see it.",
+      });
+      blockedAt = "waf";
+    } else {
+      stages.push({
+        stageId: "waf",
+        decision: "No Managed or Custom Rule matched — Allow",
+        blocked: false,
+        detail: "Request content doesn't match any known attack signature or configured policy rule.",
+      });
+    }
   } else {
     stages.push({
       stageId: "waf",
-      decision: "No Managed or Custom Rule matched — Allow",
+      decision: "Skipped — request was blocked upstream",
       blocked: false,
-      detail: "Request content doesn't match any known attack signature or configured policy rule.",
+      skipped: true,
+      detail: "No rule evaluation occurs once an earlier phase has already blocked or challenged the request.",
     });
   }
 
@@ -152,25 +184,14 @@ export function simulateRequest(req: SimRequest): SimulationResult {
         detail: "Client fingerprint and behavior are consistent with a normal browser.",
       });
     }
-  }
-
-  if (!blockedAt) {
-    if (req.highRate) {
-      stages.push({
-        stageId: "rateLimit",
-        decision: "BLOCK — threshold exceeded for this key",
-        blocked: true,
-        detail: "This client has exceeded the configured request threshold for this path within the current window.",
-      });
-      blockedAt = "rateLimit";
-    } else {
-      stages.push({
-        stageId: "rateLimit",
-        decision: "Under threshold — Allow",
-        blocked: false,
-        detail: "Request volume from this client is within configured limits.",
-      });
-    }
+  } else {
+    stages.push({
+      stageId: "bot",
+      decision: "Skipped — request was blocked upstream",
+      blocked: false,
+      skipped: true,
+      detail: "No bot evaluation occurs once an earlier phase has already blocked or challenged the request.",
+    });
   }
 
   if (!blockedAt) {

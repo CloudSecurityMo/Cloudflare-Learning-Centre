@@ -42,7 +42,7 @@ export function evaluateTls(mode: TlsMode, origin: OriginCertState): TlsOutcome 
       browserLeg: "HTTPS (encrypted)",
       originLeg: "HTTPS (encrypted, certificate NOT validated)",
       status: "ok",
-      message: "Both legs are encrypted, but Cloudflare accepts any certificate the origin presents — including self-signed or expired ones. This stops passive eavesdropping but not an on-path attacker impersonating the origin.",
+      message: "Both legs are encrypted, but Cloudflare accepts any certificate the origin presents — including self-signed or expired ones. This stops passive eavesdropping but not an on-path attacker impersonating the origin. (Note: Full mode technically matches whatever protocol the visitor connected with — this lab assumes an HTTPS visitor, which is the near-universal case today.)",
     };
   }
 

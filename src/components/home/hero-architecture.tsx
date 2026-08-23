@@ -8,9 +8,9 @@ import { cn } from "@/lib/utils";
 
 const CF_CAPABILITIES = [
   { slug: "edge-tls", label: "TLS" },
+  { slug: "rate-limiting", label: "Rate Limit" },
   { slug: "waf", label: "WAF" },
   { slug: "bot-management", label: "Bot Mgmt" },
-  { slug: "rate-limiting", label: "Rate Limit" },
   { slug: "cdn", label: "CDN" },
 ];
 

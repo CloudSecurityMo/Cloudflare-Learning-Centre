@@ -26,7 +26,11 @@ export const dns: TopicContent = {
     },
     {
       heading: "Nameserver delegation",
-      body: "Moving a domain to Cloudflare means updating the NS records at your registrar to point to two Cloudflare-assigned nameservers (e.g. bob.ns.cloudflare.com). The registrar's delegation is what makes Cloudflare authoritative — Cloudflare doesn't need to 'own' the domain, only to be delegated authority for it. Until delegation propagates (which depends on the TTL cached by the registry and resolvers), some resolvers may still return answers from the old provider.",
+      body: "Moving a domain to Cloudflare means updating the NS records at your registrar to point to two Cloudflare-assigned nameservers (e.g. bob.ns.cloudflare.com). The registrar's delegation is what makes Cloudflare authoritative — Cloudflare doesn't need to 'own' the domain, only to be delegated authority for it. Until delegation propagates (which depends on the TTL cached by the registry and resolvers), some resolvers may still return answers from the old provider. This is called a full (nameserver) setup, and it's what makes a zone 'active' on Cloudflare.",
+    },
+    {
+      heading: "Full setup vs partial (CNAME) setup",
+      body: "Changing nameservers isn't always possible — some organizations can't move their authoritative DNS off an existing provider (compliance, a shared registrar with other teams, etc.). For that case, Cloudflare offers a partial (CNAME) setup, available on Business and Enterprise plans: you keep your existing DNS provider as authoritative, and proxy individual subdomains by pointing a CNAME record at Cloudflare's infrastructure instead of switching the whole zone. The trade-off is real: because CNAME records can't exist at the zone apex, proxying the bare domain needs CNAME flattening support from your existing DNS provider (or a redirect to a proxied subdomain), and DNS-layer DDoS protection only applies to zones on a full (nameserver) setup — a partial setup still relies on your original provider's DNS resilience.",
     },
     {
       heading: "Core record types",
@@ -123,5 +127,6 @@ export const dns: TopicContent = {
   docs: [
     { label: "DNS Records — Cloudflare Docs", url: "https://developers.cloudflare.com/dns/manage-dns-records/reference/dns-record-types/" },
     { label: "Proxy status — Cloudflare Docs", url: "https://developers.cloudflare.com/dns/manage-dns-records/reference/proxied-dns-records/" },
+    { label: "Partial (CNAME) setup — Cloudflare Docs", url: "https://developers.cloudflare.com/dns/zone-setups/partial-setup/" },
   ],
 };

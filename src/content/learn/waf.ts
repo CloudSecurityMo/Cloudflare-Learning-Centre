@@ -19,7 +19,7 @@ export const waf: TopicContent = {
       heading: "Where the WAF sits",
       body: "The WAF only evaluates traffic for proxied (orange-cloud) hostnames, after TLS termination and before the request is sent to (or served from cache in front of) the origin. It operates entirely at L7 — it parses the HTTP request (method, path, query string, headers, cookies, body) and evaluates rules against that content. It has no visibility into DNS-only traffic, and no visibility into application-layer behavior after the request reaches your origin (e.g. it can't see what your app does with a valid, well-formed request).",
       diagram:
-        "Browser -> TLS terminate -> WAF (Managed + Custom rules) -> Rate Limiting -> Bot Mgmt -> Cache -> Origin",
+        "Browser -> TLS terminate -> DDoS (L7) -> WAF Custom Rules -> Rate Limiting -> WAF Managed Rules -> Bot Fight Mode -> Cache -> Origin",
     },
     {
       heading: "Managed Rules",
@@ -35,7 +35,7 @@ export const waf: TopicContent = {
     },
     {
       heading: "Evaluation order matters",
-      body: "Cloudflare evaluates security products in a defined phase order (roughly: IP reputation/DDoS -> Custom Rules (including 'Skip' actions) -> Managed Rules -> Rate Limiting -> Bot Management, with some nuance by product and plan). A Custom Rule with a 'Skip' action can deliberately bypass Managed Rules or Bot Management for specific traffic (e.g. a trusted webhook source) — this is powerful but also a common source of accidental gaps if scoped too broadly.",
+      body: "Cloudflare evaluates security products in a fixed phase order: L7 DDoS protection, then Custom Rules, then Rate Limiting Rules, then Managed Rules, then (Super) Bot Fight Mode — account-level rulesets run before zone-level ones within each phase. A rule that takes a terminating action (Block, Managed Challenge) stops the request from reaching later phases entirely. Note that Custom Rules run before Managed Rules and before Rate Limiting, which is why a Custom Rule with a 'Skip' action can deliberately bypass all of them for specific traffic (e.g. a trusted webhook source) — powerful, but also a common source of accidental gaps if scoped too broadly. Bot Management's score (where available) is generated early enough to be referenced inside Custom Rule expressions, rather than sitting in its own late-stage phase.",
     },
   ],
   examples: [
@@ -109,5 +109,6 @@ export const waf: TopicContent = {
   docs: [
     { label: "WAF — Cloudflare Docs", url: "https://developers.cloudflare.com/waf/" },
     { label: "WAF Custom Rules", url: "https://developers.cloudflare.com/waf/custom-rules/" },
+    { label: "Security feature execution order — Cloudflare Docs", url: "https://developers.cloudflare.com/waf/feature-interoperability/" },
   ],
 };

@@ -31,6 +31,10 @@ export const proxying: TopicContent = {
       heading: "Origin IP exposure is a separate problem from proxying",
       body: "Proxying hides your origin IP from the DNS response, but it does not guarantee the IP is unreachable. Common leak vectors: a DNS-only record for a subdomain on the same origin (e.g. direct.example.com pointing at the same server), historical DNS records indexed before you enabled Cloudflare, TLS certificates issued for the origin's real hostname (searchable via Certificate Transparency logs), email headers leaking the origin's mail server IP, or misconfigured origin servers responding to any Host header on port 80/443. Real origin protection requires firewalling the origin to only accept connections from Cloudflare's published IP ranges (or using Cloudflare Tunnel to remove inbound exposure entirely) — see the Origin Protection Lab.",
     },
+    {
+      heading: "Authenticated Origin Pulls",
+      body: "IP-range firewalling has a gap: it trusts the source IP alone, and anyone who discovers a way to spoof or route through that range (or simply finds the IP before you lock the firewall down) can impersonate Cloudflare. Authenticated Origin Pulls closes this gap with mutual TLS — the origin is configured to require and validate a client certificate that only Cloudflare's edge presents, so the origin can cryptographically confirm a request actually came from Cloudflare rather than merely arriving from a Cloudflare-looking IP. It's a complement to IP allowlisting, not a replacement — the two address different failure modes (spoofed/rogue source vs. an IP range that becomes stale or is misconfigured).",
+    },
   ],
   examples: [
     {
@@ -86,5 +90,9 @@ export const proxying: TopicContent = {
     },
   ],
   relatedTopics: ["dns", "fundamentals", "ssl-tls"],
-  docs: [{ label: "HTTP request headers — Cloudflare Docs", url: "https://developers.cloudflare.com/fundamentals/reference/http-request-headers/" }],
+  docs: [
+    { label: "Cloudflare HTTP headers — Cloudflare Docs", url: "https://developers.cloudflare.com/fundamentals/reference/http-headers/" },
+    { label: "Authenticated Origin Pulls — Cloudflare Docs", url: "https://developers.cloudflare.com/ssl/origin-configuration/authenticated-origin-pull/" },
+    { label: "Protect your origin server — Cloudflare Docs", url: "https://developers.cloudflare.com/fundamentals/security/protect-your-origin-server/" },
+  ],
 };

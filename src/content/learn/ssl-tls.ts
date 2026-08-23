@@ -20,8 +20,8 @@ export const sslTls: TopicContent = {
       body: "Because Cloudflare is a reverse proxy, encryption is really two separate questions: (1) is the browser-to-Cloudflare connection encrypted, and (2) is the Cloudflare-to-origin connection encrypted, and if so, is the origin's certificate actually validated? The SSL/TLS mode setting controls leg 2's behavior.",
     },
     {
-      heading: "The four modes",
-      body: "Off — no HTTPS at all between browser and Cloudflare (rarely appropriate today).\nFlexible — browser-to-Cloudflare is HTTPS, but Cloudflare-to-origin is plain HTTP. The origin never needs a certificate. This is a trap for anything handling sensitive data: traffic is unencrypted for the second leg, and it commonly causes redirect loops if the origin app itself tries to force HTTPS.\nFull — both legs are HTTPS, but Cloudflare does not validate the origin certificate's authenticity (self-signed certs are accepted). Encrypted, but vulnerable to on-path attacks between edge and origin impersonating the origin.\nFull (Strict) — both legs are HTTPS, and Cloudflare validates the origin certificate against a trusted CA or Cloudflare's own Origin CA. This is the recommended mode for anything beyond a quick test.",
+      heading: "The modes",
+      body: "Off — no encryption at all; everything is cleartext HTTP on both legs.\nFlexible — browser-to-Cloudflare is HTTPS, but Cloudflare-to-origin is always plain HTTP. The origin never needs a certificate. This is a trap for anything handling sensitive data: traffic is unencrypted for the second leg, and it commonly causes redirect loops if the origin app itself tries to force HTTPS.\nFull — Cloudflare matches the visitor's connection protocol when talking to the origin (in practice, HTTPS, since virtually every zone now enforces HTTPS to visitors), but does not validate the origin certificate's authenticity — self-signed or expired certs are accepted. Encrypted, but vulnerable to on-path impersonation of the origin.\nFull (Strict) — same protocol-matching behavior as Full, but Cloudflare also validates the origin certificate against a trusted CA or Cloudflare's own Origin CA. This is the recommended mode for anything beyond a quick test.\nStrict (SSL-Only Origin Pull) — a stricter variant that always connects to the origin over HTTPS with certificate validation, regardless of the protocol the visitor used to connect.",
       diagram:
         "Flexible:      Browser --HTTPS--> Cloudflare --HTTP---> Origin\n" +
         "Full:          Browser --HTTPS--> Cloudflare --HTTPS(any cert)--> Origin\n" +
@@ -100,6 +100,6 @@ export const sslTls: TopicContent = {
   docs: [
     { label: "SSL/TLS encryption modes — Cloudflare Docs", url: "https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/" },
     { label: "Origin CA — Cloudflare Docs", url: "https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/" },
-    { label: "Troubleshooting 526 — Cloudflare Docs", url: "https://developers.cloudflare.com/ssl/troubleshooting/error-pages/" },
+    { label: "Cloudflare 5xx errors — Cloudflare Docs", url: "https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/" },
   ],
 };
