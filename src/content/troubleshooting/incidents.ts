@@ -1,16 +1,75 @@
+export interface Hypothesis {
+  text: string;
+  correct: boolean;
+  feedback: string;
+}
+
+export interface TradeoffOption {
+  action: string;
+  consequence: string;
+  recommended: boolean;
+}
+
 export interface Incident {
   id: string;
   title: string;
   symptom: string;
   architecture: string;
   evidence: string[];
+  hypotheses: Hypothesis[];
   likelyCauses: string[];
   investigation: string[];
   remediation: string[];
+  tradeoffs?: TradeoffOption[];
   explanation: string;
 }
 
 export const INCIDENTS: Incident[] = [
+  {
+    id: "sqli-reaches-origin",
+    title: "A SQL injection payload reached the origin",
+    symptom: "Post-incident review shows a SQL injection attempt was processed by the application — the WAF never saw it.",
+    architecture: "Browser -> [should be] Cloudflare Edge (WAF) -> Origin — but the origin log shows the raw attack",
+    evidence: [
+      "The origin's application log shows the raw ' OR 1=1-- payload in a request",
+      "Security Events in the Cloudflare dashboard show no matching block for that timestamp/path",
+      "The hostname the request hit resolves in DNS, but its proxy status hasn't been checked yet",
+    ],
+    hypotheses: [
+      {
+        text: "Check whether the hostname the request hit is actually proxied (orange-cloud) in DNS",
+        correct: true,
+        feedback: "Right instinct — if the WAF never logged the request at all (not even an Allow), the most common explanation is that Cloudflare was never in the request path for that hostname.",
+      },
+      {
+        text: "Assume the WAF Managed Ruleset has a gap and file a bug report immediately",
+        correct: false,
+        feedback: "Possible in theory, but the WAF logging nothing at all for this request — not even an 'Allow' Security Event — is a stronger signal that Cloudflare never saw the request, not that it saw it and missed it.",
+      },
+      {
+        text: "Restart the origin application server",
+        correct: false,
+        feedback: "This doesn't address a security path question at all and won't tell you why the request wasn't inspected.",
+      },
+    ],
+    likelyCauses: [
+      "The hostname is DNS-only (grey cloud) — Cloudflare never saw the request",
+      "The request hit a different, unproxied hostname on the same origin (e.g. a forgotten direct-access subdomain)",
+      "A WAF Custom Rule with a Skip action unintentionally bypasses Managed Rules for this path",
+    ],
+    investigation: [
+      "Check the proxy status of the exact hostname the request hit",
+      "Search Security Events for the request's Ray ID — if it doesn't exist at all, Cloudflare never processed the request",
+      "Review Custom Rules for a Skip action scoped broader than intended",
+    ],
+    remediation: [
+      "Proxy the hostname if it was DNS-only, or remove/redirect the unproxied direct-access subdomain",
+      "Narrow any overly broad Skip rule to the specific traffic it was meant for",
+      "Audit the full zone for any other unproxied hostnames pointing at the same origin",
+    ],
+    explanation:
+      "The WAF can only ever act on traffic Cloudflare actually receives. When an attack 'gets through,' the very first question is always 'did Cloudflare see this request at all?' before asking 'did the WAF fail to catch it?' — those require completely different fixes.",
+  },
   {
     id: "522",
     title: "Website returns 522",
@@ -20,6 +79,23 @@ export const INCIDENTS: Incident[] = [
       "Ray ID present on the error page (confirms it's a Cloudflare-generated error, not an origin 5xx)",
       "Origin monitoring shows the server process running, but Cloudflare still can't connect",
       "Recent change to origin security groups/firewall rules",
+    ],
+    hypotheses: [
+      {
+        text: "Diff recent firewall/security-group changes against Cloudflare's current published IP ranges",
+        correct: true,
+        feedback: "Right first move — origin monitoring already shows the server is up, so the fastest path to a diagnosis is checking what changed on the network path, and firewall rule drift is the single most common cause.",
+      },
+      {
+        text: "Assume Cloudflare's network is down and wait",
+        correct: false,
+        feedback: "522 is Cloudflare reporting that it couldn't reach the origin — the opposite implication of a Cloudflare-side outage. Check Cloudflare's status page only after ruling out the origin side.",
+      },
+      {
+        text: "Increase the origin's connection timeout setting",
+        correct: false,
+        feedback: "This doesn't help if the connection can never be established in the first place — a timeout increase only matters for slow-but-eventually-successful connections, not blocked ones.",
+      },
     ],
     likelyCauses: [
       "Origin server is down, overloaded, or unresponsive at the TCP layer",
@@ -48,6 +124,23 @@ export const INCIDENTS: Incident[] = [
       "TCP connection to the origin succeeds, but TLS negotiation fails",
       "Origin web server logs show handshake/protocol errors around the same timestamps",
     ],
+    hypotheses: [
+      {
+        text: "Attempt a direct TLS handshake to the origin on port 443 and inspect the negotiated protocol/cipher or failure reason",
+        correct: true,
+        feedback: "Correct — since TCP already succeeds, the handshake itself is the point of failure, and reproducing it directly is the fastest way to see exactly what's rejected and why.",
+      },
+      {
+        text: "Check the SSL/TLS mode is set to Full (Strict) and stop there",
+        correct: false,
+        feedback: "The mode setting matters, but knowing the mode alone doesn't tell you why the handshake failed — you still need to see what protocol/cipher the origin is actually offering.",
+      },
+      {
+        text: "Purge the cache",
+        correct: false,
+        feedback: "Caching is unrelated to the TLS handshake between the edge and the origin.",
+      },
+    ],
     likelyCauses: [
       "Origin doesn't support a TLS version or cipher suite Cloudflare requires",
       "SSL/TLS mode expects HTTPS on the origin but the origin is only listening on plain HTTP",
@@ -73,6 +166,23 @@ export const INCIDENTS: Incident[] = [
     evidence: [
       "SSL/TLS mode is set to Full (Strict)",
       "Origin certificate is self-signed, expired, or missing intermediate certificates",
+    ],
+    hypotheses: [
+      {
+        text: "Check the origin certificate's expiry, issuer, and whether the served chain includes intermediates",
+        correct: true,
+        feedback: "Correct — 526 means the handshake succeeded but validation failed, so the certificate itself (expiry, trust chain, hostname match) is exactly where the problem lives.",
+      },
+      {
+        text: "Switch SSL/TLS mode to Off",
+        correct: false,
+        feedback: "This would remove encryption entirely rather than fix the underlying certificate problem — a drastic overcorrection, not a diagnosis.",
+      },
+      {
+        text: "Restart the origin web server",
+        correct: false,
+        feedback: "A restart doesn't fix an expired, self-signed, or incomplete certificate chain.",
+      },
     ],
     likelyCauses: [
       "Origin certificate expired",
@@ -103,6 +213,23 @@ export const INCIDENTS: Incident[] = [
       "Security Events log shows a matched Managed or Custom Rule for the exact request",
       "Pattern correlates with a recent ruleset update or new Custom Rule deployment",
     ],
+    hypotheses: [
+      {
+        text: "Get the Ray ID from the affected user and look it up directly in Security Events",
+        correct: true,
+        feedback: "Correct — the Ray ID is the fastest path from a vague user report to the exact rule and field that matched, avoiding a slow search by approximate time/IP.",
+      },
+      {
+        text: "Disable the WAF ruleset immediately to restore access",
+        correct: false,
+        feedback: "This 'fixes' the false positive by removing protection for everyone — a real fix should be scoped to the specific false-positive pattern, not a blanket rollback.",
+      },
+      {
+        text: "Tell the user to clear their browser cache",
+        correct: false,
+        feedback: "A WAF block is a server-side decision made per-request; nothing client-side about cache state changes whether a rule matches.",
+      },
+    ],
     likelyCauses: [
       "A Managed Rule false-positived on legitimate content (e.g. a comment containing SQL-like keywords)",
       "A Custom Rule's condition is broader than intended",
@@ -118,6 +245,28 @@ export const INCIDENTS: Incident[] = [
       "Report persistent Managed Rule false positives to Cloudflare",
       "Avoid disabling the entire ruleset as a blunt fix",
     ],
+    tradeoffs: [
+      {
+        action: "Disable the WAF ruleset entirely",
+        consequence: "Restores access instantly, but removes protection against every attack the ruleset was catching — for every visitor, not just the false-positive case.",
+        recommended: false,
+      },
+      {
+        action: "Allow the customer's entire IP address",
+        consequence: "Fixes this one customer, but IP-based exceptions are broad, don't scale, and leave that IP unprotected for everything, not just this false positive.",
+        recommended: false,
+      },
+      {
+        action: "Add a narrowly scoped Custom Rule exception (Skip) for the specific field/path pattern",
+        consequence: "Takes a few minutes longer to identify the precise match, but closes only the specific gap that caused the false positive — protection stays intact everywhere else.",
+        recommended: true,
+      },
+      {
+        action: "Do nothing and tell the customer to try again later",
+        consequence: "The false positive will keep recurring for every legitimate request matching the same pattern, and erodes trust with real customers.",
+        recommended: false,
+      },
+    ],
     explanation:
       "This is the classic WAF tuning problem: the rule is functioning as designed (a pattern matched), but the request was benign. The fix is precision, not disabling protection — over-broad exceptions recreate the exposure the rule existed to close.",
   },
@@ -130,6 +279,23 @@ export const INCIDENTS: Incident[] = [
       "A DNS-only record (e.g. a staging or direct-access subdomain) resolves to the same IP as the proxied production hostname",
       "Certificate Transparency logs show a certificate issued for the origin's real hostname",
       "The origin's firewall accepts connections from any source IP, not just Cloudflare's ranges",
+    ],
+    hypotheses: [
+      {
+        text: "Audit every DNS record in the zone for anything pointing at the same origin IP with proxying disabled",
+        correct: true,
+        feedback: "Correct starting point — a leftover DNS-only record on the same origin is the single most common and most fixable cause, and it's the fastest thing to check.",
+      },
+      {
+        text: "Immediately rotate the origin IP as the first step",
+        correct: false,
+        feedback: "Rotating the IP without first finding and fixing the leak just delays the same exposure — the new IP will leak again from the same unaddressed root cause (a stale record, an open firewall, etc.).",
+      },
+      {
+        text: "Enable Under Attack Mode",
+        correct: false,
+        feedback: "Under Attack Mode adds friction for visitors going through Cloudflare — it does nothing for traffic that reaches the origin directly, bypassing Cloudflare entirely.",
+      },
     ],
     likelyCauses: [
       "A forgotten DNS-only record pointing at the same origin server",
@@ -160,6 +326,23 @@ export const INCIDENTS: Incident[] = [
       "Querying a public resolver (1.1.1.1, 8.8.8.8) returns a different, stale answer",
       "The record was changed recently, within the previous TTL window",
     ],
+    hypotheses: [
+      {
+        text: "Query Cloudflare's authoritative nameservers directly and compare against a public resolver",
+        correct: true,
+        feedback: "Correct — this single comparison immediately tells you whether the authoritative data itself is wrong (a config mistake) or just stale in caches (a propagation/TTL issue), which need completely different fixes.",
+      },
+      {
+        text: "Assume it's propagation and wait 48 hours without checking anything",
+        correct: false,
+        feedback: "'Just wait' is only the right answer if the authoritative answer is already correct — if the record itself is misconfigured, waiting fixes nothing.",
+      },
+      {
+        text: "Delete and recreate the DNS record",
+        correct: false,
+        feedback: "This doesn't diagnose anything and risks introducing a new mistake before you've confirmed what's actually wrong.",
+      },
+    ],
     likelyCauses: [
       "A resolver is still serving a cached answer within its TTL",
       "NS delegation at the registrar still points to a previous DNS provider",
@@ -188,6 +371,23 @@ export const INCIDENTS: Incident[] = [
       "Origin response headers include Cache-Control: no-store/private or a Set-Cookie",
       "Content type is HTML with no Cache Rule configured",
     ],
+    hypotheses: [
+      {
+        text: "Inspect the cf-cache-status header and the origin's actual Cache-Control/Set-Cookie headers together",
+        correct: true,
+        feedback: "Correct — cf-cache-status tells you what Cloudflare decided, and the origin's headers tell you why; you need both to know whether the fix belongs in a Cache Rule or in the origin's response.",
+      },
+      {
+        text: "Assume Cloudflare's cache is broken and open a support ticket",
+        correct: false,
+        feedback: "The overwhelmingly common cause is expected default behavior (HTML not cached by default, or origin headers blocking it) — worth ruling out before assuming a platform bug.",
+      },
+      {
+        text: "Set every response to Cache Everything without checking what's actually being served",
+        correct: false,
+        feedback: "This risks caching per-user or sensitive content (e.g. pages with session data) before you've even confirmed why the current content isn't cacheable.",
+      },
+    ],
     likelyCauses: [
       "HTML isn't cached by default without an explicit Cache Rule",
       "Origin sends headers that prevent caching (no-store, private, Set-Cookie)",
@@ -214,6 +414,23 @@ export const INCIDENTS: Incident[] = [
       "Security Events show a Managed Rule match on a JSON request body",
       "The blocked request is well-formed per the API's own schema, just structurally unusual (e.g. deeply nested JSON, a field containing SQL-like text)",
     ],
+    hypotheses: [
+      {
+        text: "Identify the exact matched rule and field via Security Events / the request's Ray ID, and confirm the request is genuinely schema-valid",
+        correct: true,
+        feedback: "Correct — you need to know precisely what triggered the match before deciding whether it's a true false positive or a request that's actually malformed.",
+      },
+      {
+        text: "Whitelist the partner's API key from all security checks",
+        correct: false,
+        feedback: "This removes protection for that integration entirely, including from genuine attacks — too broad for a single false-positive pattern.",
+      },
+      {
+        text: "Ask the partner to stop sending that field",
+        correct: false,
+        feedback: "Possible eventually, but only after confirming the field is actually optional and that this is really a false positive, not a real integration bug.",
+      },
+    ],
     likelyCauses: [
       "A generic Managed Rule signature false-positives on valid-but-unusual JSON payload content",
       "No schema validation is in place to positively define what a valid request looks like",
@@ -226,18 +443,57 @@ export const INCIDENTS: Incident[] = [
       "Add a narrowly scoped Custom Rule exception for the specific endpoint/field pattern",
       "Move toward schema-based (positive security model) validation for the API surface so structurally valid requests aren't subject to generic signature false positives",
     ],
+    tradeoffs: [
+      {
+        action: "Disable WAF for the entire API hostname",
+        consequence: "Unblocks the partner instantly, but removes attack-signature protection for every client of the API, not just this one integration.",
+        recommended: false,
+      },
+      {
+        action: "Allow the partner's IP/API key through everything",
+        consequence: "Fixes this integration but creates a standing blind spot specific to that credential — if it's ever compromised, it inherits the same blanket bypass.",
+        recommended: false,
+      },
+      {
+        action: "Add a narrowly scoped Custom Rule exception for the specific endpoint/field pattern",
+        consequence: "Requires identifying the exact match first, but keeps the WAF fully active everywhere else — the fix is as small as the problem.",
+        recommended: true,
+      },
+      {
+        action: "Adopt schema validation (API Shield) for the endpoint going forward",
+        consequence: "More setup work, but replaces signature-guessing with a positive model — a well-formed request per the schema is never a false positive again.",
+        recommended: true,
+      },
+    ],
     explanation:
       "APIs are especially prone to WAF false positives because structured data (JSON/GraphQL) can innocently resemble attack patterns. This is the core argument for API-specific, schema-aware protection layered alongside — not instead of — the general WAF.",
   },
   {
     id: "bots-overwhelming",
     title: "Bots are overwhelming the application",
-    symptom: "Origin CPU/database load spikes, correlating with a surge in automated-looking traffic.",
+    symptom: "Origin CPU/database load spikes, correlating with a surge in automated-looking traffic on /login.",
     architecture: "Automated clients + real users -> Cloudflare -> Origin (elevated load)",
     evidence: [
       "Bot Analytics shows a spike in low-scoring traffic",
       "Traffic pattern is highly regular (fixed intervals, sequential pagination, no session/cookie retention)",
-      "Concentrated on a small number of expensive endpoints (search, full catalog listing)",
+      "Concentrated on a small number of expensive endpoints (login, search, full catalog listing)",
+    ],
+    hypotheses: [
+      {
+        text: "Review Bot Analytics score distribution for the affected endpoints before choosing a response",
+        correct: true,
+        feedback: "Correct — confirming the traffic is actually low-scoring (vs. e.g. a legitimate integration retrying aggressively) is the evidence-based first step before deciding how hard to respond.",
+      },
+      {
+        text: "Immediately block every IP seen hitting /login in the last hour",
+        correct: false,
+        feedback: "IP-based blocking after the fact is blunt, doesn't scale against IP rotation, and risks blocking legitimate users who share those IPs (NAT/CGNAT) without confirming they're actually bots.",
+      },
+      {
+        text: "Turn off the /login endpoint temporarily",
+        correct: false,
+        feedback: "This 'solves' the load problem by denying access to legitimate users too — a worse outcome than the original incident for a problem Bot Management and Rate Limiting can address without full downtime.",
+      },
     ],
     likelyCauses: [
       "A scraper harvesting content at high frequency",
@@ -264,6 +520,23 @@ export const INCIDENTS: Incident[] = [
     evidence: [
       "Origin logs show a narrow range of IPs consistent with Cloudflare's published ranges, not diverse visitor IPs",
       "Application IP-based logic (rate limiting, geo-blocking, fraud scoring) behaves as if every visitor comes from the same small set of addresses",
+    ],
+    hypotheses: [
+      {
+        text: "Curl the origin directly with a manually set CF-Connecting-IP header and check what the application actually logs",
+        correct: true,
+        feedback: "Correct — this isolates whether the application is reading the forwarded header at all, which is the actual point of failure in this class of issue.",
+      },
+      {
+        text: "Assume Cloudflare stopped sending the header and contact support",
+        correct: false,
+        feedback: "CF-Connecting-IP is added on every proxied request by design — the far more common cause is the origin simply not configured to read it.",
+      },
+      {
+        text: "Rewrite all application IP logic to hardcode Cloudflare's ranges as 'trusted users'",
+        correct: false,
+        feedback: "This treats the symptom as the cause — Cloudflare's IPs being in the logs isn't the problem to fix; not reading CF-Connecting-IP is.",
+      },
     ],
     likelyCauses: [
       "Origin web server/app reads the raw TCP source IP instead of the CF-Connecting-IP / X-Forwarded-For header",

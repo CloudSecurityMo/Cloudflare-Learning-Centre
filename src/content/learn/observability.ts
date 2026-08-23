@@ -48,5 +48,10 @@ export const observability: TopicContent = {
     },
   ],
   relatedTopics: ["logging", "waf"],
-  docs: [{ label: "Security Analytics — Cloudflare Docs", url: "https://developers.cloudflare.com/waf/analytics/security-analytics/" }],
+  applyLabHref: "/labs/troubleshooting",
+  lastVerified: "2026-08-23",
+  officialSources: [
+    { title: "Security Analytics", url: "https://developers.cloudflare.com/waf/analytics/security-analytics/", sourceType: "cloudflare-documentation" },
+    { title: "Cloudflare Ray ID", url: "https://developers.cloudflare.com/fundamentals/reference/cloudflare-ray-id/", sourceType: "cloudflare-documentation" },
+  ],
 };

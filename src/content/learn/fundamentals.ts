@@ -41,6 +41,16 @@ export const fundamentals: TopicContent = {
       heading: "Why this distinction matters for security",
       body: "WAF, Bot Management, rate limiting rules, and the CDN cache only ever see traffic for proxied (orange-cloud) hostnames. A record left DNS-only is invisible to those controls — traffic goes straight to the origin. This is one of the most common real-world misconfigurations: teams enable WAF rules at the account level and assume every hostname is protected, without checking that each relevant DNS record is actually proxied.",
     },
+    {
+      heading: "What happens when you type https://example.com (conceptual model)",
+      body: "This ties the whole networking stack together — most of these steps are general web/networking behavior, not Cloudflare-specific:\n\n1. Browser checks its DNS cache; if empty, it asks a recursive resolver for example.com's A/AAAA record.\n2. The resolver walks the DNS hierarchy (root -> .com TLD -> Cloudflare's authoritative nameservers) and returns an IP — Cloudflare's anycast edge IP if proxied, the origin's IP if DNS-only.\n3. The browser opens a TCP (or QUIC, for HTTP/3) connection to that IP. Anycast routing (BGP) sends it to the nearest healthy Cloudflare data center.\n4. A TLS handshake follows: the browser and edge negotiate a protocol version and cipher suite, and ALPN during that handshake indicates whether HTTP/1.1, HTTP/2, or HTTP/3 will be used; SNI tells the edge which hostname's certificate to present, since many hostnames can share one IP.\n5. Once TLS is established, the browser sends the HTTP request. If proxied, this is where Cloudflare-specific processing happens: DDoS checks, Custom Rules, Rate Limiting, Managed Rules, Bot Fight Mode, then a cache lookup.\n6. On a cache MISS, Cloudflare opens its own connection to the origin (a separate TLS handshake, per the SSL/TLS mode) and forwards the request.\n7. The origin's response travels back through Cloudflare (optionally cached for next time) and down to the browser, which renders it.",
+      diagram:
+        "Browser -> DNS -> IP -> TCP/QUIC -> TLS (SNI + ALPN) -> HTTP request\n" +
+        "                                                          |\n" +
+        "                                          (if proxied) Cloudflare security + cache\n" +
+        "                                                          |\n" +
+        "                                                        Origin -> Response -> Browser",
+    },
   ],
   examples: [
     {
@@ -83,5 +93,11 @@ export const fundamentals: TopicContent = {
     },
   ],
   relatedTopics: ["dns", "proxying", "waf"],
-  docs: [{ label: "How Cloudflare Works", url: "https://developers.cloudflare.com/fundamentals/concepts/how-cloudflare-works/" }],
+  mentalModelSlugs: ["dns-vs-proxy"],
+  architectHref: "/labs/architecture-designer",
+  lastVerified: "2026-08-23",
+  officialSources: [
+    { title: "How Cloudflare works", url: "https://developers.cloudflare.com/fundamentals/concepts/how-cloudflare-works/", sourceType: "cloudflare-documentation" },
+    { title: "Accounts and zones", url: "https://developers.cloudflare.com/fundamentals/concepts/accounts-and-zones/", sourceType: "cloudflare-documentation" },
+  ],
 };

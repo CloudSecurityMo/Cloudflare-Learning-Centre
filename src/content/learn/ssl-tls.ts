@@ -97,9 +97,13 @@ export const sslTls: TopicContent = {
     },
   ],
   relatedTopics: ["proxying", "dns"],
-  docs: [
-    { label: "SSL/TLS encryption modes — Cloudflare Docs", url: "https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/" },
-    { label: "Origin CA — Cloudflare Docs", url: "https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/" },
-    { label: "Cloudflare 5xx errors — Cloudflare Docs", url: "https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/" },
+  mentalModelSlugs: ["origin-cert-vs-public-ca"],
+  applyLabHref: "/labs/tls-lab",
+  architectHref: "/labs/troubleshooting",
+  lastVerified: "2026-08-23",
+  officialSources: [
+    { title: "SSL/TLS encryption modes", url: "https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/", sourceType: "cloudflare-documentation" },
+    { title: "Cloudflare Origin CA", url: "https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/", sourceType: "cloudflare-documentation" },
+    { title: "Cloudflare 5xx errors", url: "https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/", sourceType: "cloudflare-documentation" },
   ],
 };

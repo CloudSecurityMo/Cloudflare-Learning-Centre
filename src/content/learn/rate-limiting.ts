@@ -58,5 +58,9 @@ export const rateLimiting: TopicContent = {
     },
   ],
   relatedTopics: ["waf", "bot-management", "ddos"],
-  docs: [{ label: "Rate Limiting Rules — Cloudflare Docs", url: "https://developers.cloudflare.com/waf/rate-limiting-rules/" }],
+  mentalModelSlugs: ["bot-vs-rate-limit"],
+  applyLabHref: "/labs/waf-lab",
+  architectHref: "/labs/troubleshooting",
+  lastVerified: "2026-08-23",
+  officialSources: [{ title: "Rate limiting rules", url: "https://developers.cloudflare.com/waf/rate-limiting-rules/", sourceType: "cloudflare-documentation" }],
 };

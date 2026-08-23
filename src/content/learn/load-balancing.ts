@@ -11,7 +11,7 @@ export const loadBalancing: TopicContent = {
   objectives: [
     "Explain how Cloudflare Load Balancing differs from a traditional origin-side load balancer",
     "Describe health checks and failover pools",
-    "Identify traffic-steering strategies (geo, weighted, latency)",
+    "Identify Cloudflare's traffic-steering policies (Standard, Geo, Dynamic, Proximity, Least Outstanding Requests)",
   ],
   concepts: [
     {
@@ -23,8 +23,8 @@ export const loadBalancing: TopicContent = {
       body: "A pool is a set of origin addresses (e.g. servers in us-east). Cloudflare actively health-checks each origin (configurable path, method, expected status/response, interval) and only routes traffic to origins currently marked healthy. If an entire pool becomes unhealthy, traffic can fail over to a backup pool.",
     },
     {
-      heading: "Steering strategies",
-      body: "Geo steering — route based on the visitor's region to the nearest pool.\nWeighted / round-robin — distribute traffic by configured ratio across origins in a pool, useful for gradual rollouts or capacity-based splits.\nDynamic/latency steering — route to the pool with the best observed round-trip performance.\nSession affinity — keep a given client pinned to the same origin for the duration of a session where statefulness requires it.",
+      heading: "Steering policies",
+      body: "Cloudflare documents these traffic steering policies: Standard — the baseline policy, distributing traffic to healthy pools by configured weight/priority order. Geo — routes based on the geographic location the DNS query originated from, down to country-level granularity. Dynamic — adjusts distribution using real-time performance metrics and pool health. Proximity — sends visitors to the geographically nearest available pool. Least Outstanding Requests — routes to the pool currently handling the fewest active connections. Session Affinity (a separate, related setting) keeps a given client pinned to the same origin for the duration of a session, for workloads where statefulness requires it.",
     },
   ],
   examples: [
@@ -53,5 +53,11 @@ export const loadBalancing: TopicContent = {
     },
   ],
   relatedTopics: ["proxying", "cdn"],
-  docs: [{ label: "Load Balancing — Cloudflare Docs", url: "https://developers.cloudflare.com/load-balancing/" }],
+  architectHref: "/labs/architecture-designer",
+  lastVerified: "2026-08-23",
+  officialSources: [
+    { title: "Load Balancing overview", url: "https://developers.cloudflare.com/load-balancing/", sourceType: "cloudflare-documentation" },
+    { title: "Traffic steering policies", url: "https://developers.cloudflare.com/load-balancing/understand-basics/traffic-steering/steering-policies/", sourceType: "cloudflare-documentation" },
+    { title: "Session Affinity", url: "https://developers.cloudflare.com/load-balancing/understand-basics/session-affinity/", sourceType: "cloudflare-documentation" },
+  ],
 };

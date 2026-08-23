@@ -66,8 +66,12 @@ export const ddos: TopicContent = {
     },
   ],
   relatedTopics: ["waf", "rate-limiting", "bot-management"],
-  docs: [
-    { label: "DDoS Protection — Cloudflare Docs", url: "https://developers.cloudflare.com/ddos-protection/" },
-    { label: "Under Attack Mode — Cloudflare Docs", url: "https://developers.cloudflare.com/fundamentals/reference/under-attack-mode/" },
+  mentalModelSlugs: ["waf-vs-ddos"],
+  architectHref: "/labs/troubleshooting",
+  lastVerified: "2026-08-23",
+  officialSources: [
+    { title: "DDoS Protection overview", url: "https://developers.cloudflare.com/ddos-protection/", sourceType: "cloudflare-documentation" },
+    { title: "Under Attack Mode", url: "https://developers.cloudflare.com/fundamentals/reference/under-attack-mode/", sourceType: "cloudflare-documentation" },
+    { title: "Network layers reference", url: "https://developers.cloudflare.com/fundamentals/reference/network-layers/", sourceType: "cloudflare-documentation" },
   ],
 };

@@ -47,5 +47,7 @@ export const logging: TopicContent = {
     },
   ],
   relatedTopics: ["observability"],
-  docs: [{ label: "Logpush — Cloudflare Docs", url: "https://developers.cloudflare.com/logs/logpush/" }],
+  architectHref: "/labs/architecture-designer",
+  lastVerified: "2026-08-23",
+  officialSources: [{ title: "Logpush", url: "https://developers.cloudflare.com/logs/logpush/", sourceType: "cloudflare-documentation" }],
 };

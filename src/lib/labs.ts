@@ -13,8 +13,11 @@ export const LABS: LabRef[] = [
   { slug: "dns-lab", label: "DNS Lab", href: "/labs/dns-lab" },
   { slug: "waf-lab", label: "WAF Rule Builder", href: "/labs/waf-lab" },
   { slug: "tls-lab", label: "TLS Lab", href: "/labs/tls-lab" },
+  { slug: "origin-inspector", label: "Origin Inspector", href: "/labs/origin-inspector" },
+  { slug: "origin-protection", label: "Origin Protection Lab", href: "/labs/origin-protection" },
   { slug: "bot-lab", label: "Bot Detection Lab", href: "/labs/bot-lab" },
-  { slug: "request-flow-simulator", label: "Request Flow Simulator", href: "/labs/request-flow-simulator" },
+  { slug: "request-flow-simulator", label: "Request Decision Engine", href: "/labs/request-flow-simulator" },
+  { slug: "product-decision-engine", label: "Product Decision Engine", href: "/labs/product-decision-engine" },
   { slug: "troubleshooting", label: "Troubleshooting Academy", href: "/labs/troubleshooting" },
   { slug: "architecture-designer", label: "Architecture Designer", href: "/labs/architecture-designer" },
 ];

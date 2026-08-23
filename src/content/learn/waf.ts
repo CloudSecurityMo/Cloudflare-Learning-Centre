@@ -106,9 +106,15 @@ export const waf: TopicContent = {
     },
   ],
   relatedTopics: ["rate-limiting", "bot-management", "ddos", "proxying"],
-  docs: [
-    { label: "WAF — Cloudflare Docs", url: "https://developers.cloudflare.com/waf/" },
-    { label: "WAF Custom Rules", url: "https://developers.cloudflare.com/waf/custom-rules/" },
-    { label: "Security feature execution order — Cloudflare Docs", url: "https://developers.cloudflare.com/waf/feature-interoperability/" },
+  mentalModelSlugs: ["cdn-vs-waf", "waf-vs-ddos"],
+  applyLabHref: "/labs/waf-lab",
+  architectHref: "/labs/troubleshooting",
+  lastVerified: "2026-08-23",
+  officialSources: [
+    { title: "WAF overview", url: "https://developers.cloudflare.com/waf/", sourceType: "cloudflare-documentation" },
+    { title: "WAF Custom Rules", url: "https://developers.cloudflare.com/waf/custom-rules/", sourceType: "cloudflare-documentation" },
+    { title: "Skip action (allowlisting)", url: "https://developers.cloudflare.com/waf/custom-rules/skip/", sourceType: "cloudflare-documentation" },
+    { title: "Security feature execution order", url: "https://developers.cloudflare.com/waf/feature-interoperability/", sourceType: "cloudflare-documentation" },
+    { title: "Ruleset Engine actions reference", url: "https://developers.cloudflare.com/ruleset-engine/rules-language/actions/", sourceType: "cloudflare-documentation" },
   ],
 };

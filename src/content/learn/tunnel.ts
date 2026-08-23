@@ -85,5 +85,9 @@ export const tunnel: TopicContent = {
     },
   ],
   relatedTopics: ["zero-trust", "proxying"],
-  docs: [{ label: "Cloudflare Tunnel — Cloudflare Docs", url: "https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/" }],
+  mentalModelSlugs: ["tunnel-vs-vpn"],
+  applyLabHref: "/labs/origin-protection",
+  architectHref: "/architecture/deployment-models?model=tunnel",
+  lastVerified: "2026-08-23",
+  officialSources: [{ title: "Cloudflare Tunnel", url: "https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/", sourceType: "cloudflare-documentation" }],
 };

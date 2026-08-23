@@ -54,5 +54,10 @@ export const workers: TopicContent = {
     },
   ],
   relatedTopics: ["proxying", "cdn"],
-  docs: [{ label: "Workers — Cloudflare Docs", url: "https://developers.cloudflare.com/workers/" }],
+  architectHref: "/architecture/deployment-models",
+  lastVerified: "2026-08-23",
+  officialSources: [
+    { title: "Workers overview", url: "https://developers.cloudflare.com/workers/", sourceType: "cloudflare-documentation" },
+    { title: "How Workers works (isolates)", url: "https://developers.cloudflare.com/workers/reference/how-workers-works/", sourceType: "cloudflare-documentation" },
+  ],
 };

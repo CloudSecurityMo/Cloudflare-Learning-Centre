@@ -23,6 +23,10 @@ export const apiSecurity: TopicContent = {
       body: "Organizations frequently lose track of every API endpoint in production — 'shadow APIs' never documented, and 'zombie APIs' from deprecated versions still reachable. API discovery works by passively analyzing traffic through the proxy to build an inventory of observed endpoints, methods, and parameters, surfacing ones that aren't in your published schema so they can be reviewed, documented, or retired.",
     },
     {
+      heading: "API Shield is Cloudflare's dedicated product for this",
+      body: "Schema validation, API discovery, sequence/abuse analytics, and mTLS-based API authentication are bundled under API Shield — an Enterprise-only paid add-on (mTLS itself is available more broadly). It's a distinct product from the general WAF and Rate Limiting, purpose-built for API traffic rather than a repurposed version of the same controls.",
+    },
+    {
       heading: "Abuse detection beyond rate limiting",
       body: "Simple rate limiting caps volume per key; API abuse detection looks at sequence and pattern — e.g. a client enumerating sequential IDs (/api/orders/1001, 1002, 1003...) far faster than a legitimate integration would, which is a business-logic-abuse pattern rather than a raw volume spike or a signature-matched attack.",
     },
@@ -53,5 +57,7 @@ export const apiSecurity: TopicContent = {
     },
   ],
   relatedTopics: ["waf", "rate-limiting"],
-  docs: [{ label: "API Shield — Cloudflare Docs", url: "https://developers.cloudflare.com/api-shield/" }],
+  architectHref: "/labs/architecture-designer",
+  lastVerified: "2026-08-23",
+  officialSources: [{ title: "API Shield overview", url: "https://developers.cloudflare.com/api-shield/", sourceType: "cloudflare-documentation" }],
 };

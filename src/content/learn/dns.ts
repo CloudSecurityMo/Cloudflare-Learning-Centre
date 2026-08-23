@@ -124,9 +124,13 @@ export const dns: TopicContent = {
     },
   ],
   relatedTopics: ["proxying", "fundamentals", "ssl-tls"],
-  docs: [
-    { label: "DNS Records — Cloudflare Docs", url: "https://developers.cloudflare.com/dns/manage-dns-records/reference/dns-record-types/" },
-    { label: "Proxy status — Cloudflare Docs", url: "https://developers.cloudflare.com/dns/manage-dns-records/reference/proxied-dns-records/" },
-    { label: "Partial (CNAME) setup — Cloudflare Docs", url: "https://developers.cloudflare.com/dns/zone-setups/partial-setup/" },
+  mentalModelSlugs: ["dns-vs-proxy"],
+  applyLabHref: "/labs/dns-lab",
+  architectHref: "/architecture/deployment-models",
+  lastVerified: "2026-08-23",
+  officialSources: [
+    { title: "DNS record types", url: "https://developers.cloudflare.com/dns/manage-dns-records/reference/dns-record-types/", sourceType: "cloudflare-documentation" },
+    { title: "Proxied DNS records", url: "https://developers.cloudflare.com/dns/manage-dns-records/reference/proxied-dns-records/", sourceType: "cloudflare-documentation" },
+    { title: "Partial (CNAME) setup", url: "https://developers.cloudflare.com/dns/zone-setups/partial-setup/", sourceType: "cloudflare-documentation" },
   ],
 };

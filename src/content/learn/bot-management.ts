@@ -76,8 +76,13 @@ export const botManagement: TopicContent = {
     },
   ],
   relatedTopics: ["waf", "rate-limiting", "ddos"],
-  docs: [
-    { label: "Bot Management — Cloudflare Docs", url: "https://developers.cloudflare.com/bots/" },
-    { label: "Bot solutions comparison — Cloudflare Docs", url: "https://developers.cloudflare.com/bots/plans/" },
+  mentalModelSlugs: ["bot-vs-rate-limit"],
+  applyLabHref: "/labs/bot-lab",
+  architectHref: "/labs/architecture-designer",
+  lastVerified: "2026-08-23",
+  officialSources: [
+    { title: "Bot Management overview", url: "https://developers.cloudflare.com/bots/", sourceType: "cloudflare-documentation" },
+    { title: "Bot solutions comparison by plan", url: "https://developers.cloudflare.com/bots/plans/", sourceType: "cloudflare-documentation" },
+    { title: "cf.bot_management.score field reference", url: "https://developers.cloudflare.com/ruleset-engine/rules-language/fields/reference/cf.bot_management.score", sourceType: "cloudflare-documentation" },
   ],
 };

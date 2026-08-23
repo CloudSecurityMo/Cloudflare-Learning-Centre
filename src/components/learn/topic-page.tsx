@@ -4,9 +4,13 @@ import Link from "next/link";
 import { ArrowUpRight, CheckCircle2, Circle, Clock } from "lucide-react";
 import type { TopicContent } from "@/content/types";
 import { getLearnTopic } from "@/content/learn";
+import { getMentalModel } from "@/content/mental-models";
 import { AsciiDiagram } from "@/components/diagrams/ascii-diagram";
 import { Quiz } from "@/components/learn/quiz";
 import { NotesPanel } from "@/components/learn/notes-panel";
+import { MentalModelCard } from "@/components/learn/mental-model";
+import { SourceVerification } from "@/components/learn/source-verification";
+import { LearningLevelBar } from "@/components/learn/learning-level-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -50,6 +54,7 @@ export function TopicPage({ topic }: { topic: TopicContent }) {
           {isComplete ? <CheckCircle2 className="size-4" /> : <Circle className="size-4" />}
           {isComplete ? "Completed" : "Mark as complete"}
         </Button>
+        <LearningLevelBar activeLevel="understand" applyHref={topic.applyLabHref} architectHref={topic.architectHref} />
       </div>
 
       <Section title="Learning Objectives">
@@ -78,6 +83,18 @@ export function TopicPage({ topic }: { topic: TopicContent }) {
           ))}
         </div>
       </Section>
+
+      {topic.mentalModelSlugs && topic.mentalModelSlugs.length > 0 && (
+        <Section title="Mental Models">
+          <div className="flex flex-col gap-4">
+            {topic.mentalModelSlugs.map((slug) => {
+              const model = getMentalModel(slug);
+              if (!model) return null;
+              return <MentalModelCard key={slug} model={model} />;
+            })}
+          </div>
+        </Section>
+      )}
 
       {topic.examples && topic.examples.length > 0 && (
         <Section title="Examples">
@@ -147,7 +164,7 @@ export function TopicPage({ topic }: { topic: TopicContent }) {
       )}
 
       {topic.quiz && topic.quiz.length > 0 && (
-        <Section title="Quiz">
+        <Section title="Test Yourself">
           <Quiz topicSlug={topic.slug} questions={topic.quiz} />
         </Section>
       )}
@@ -174,22 +191,29 @@ export function TopicPage({ topic }: { topic: TopicContent }) {
         </Section>
       )}
 
-      {topic.docs && topic.docs.length > 0 && (
+      {topic.officialSources && topic.officialSources.length > 0 ? (
         <Section title="Official Documentation">
-          <div className="flex flex-col gap-1.5">
-            {topic.docs.map((d, i) => (
-              <a
-                key={i}
-                href={d.url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex w-fit items-center gap-1 text-sm text-brand hover:underline"
-              >
-                {d.label} <ArrowUpRight className="size-3.5" />
-              </a>
-            ))}
-          </div>
+          <SourceVerification sources={topic.officialSources} lastVerified={topic.lastVerified} />
         </Section>
+      ) : (
+        topic.docs &&
+        topic.docs.length > 0 && (
+          <Section title="Official Documentation">
+            <div className="flex flex-col gap-1.5">
+              {topic.docs.map((d, i) => (
+                <a
+                  key={i}
+                  href={d.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex w-fit items-center gap-1 text-sm text-brand hover:underline"
+                >
+                  {d.label} <ArrowUpRight className="size-3.5" />
+                </a>
+              ))}
+            </div>
+          </Section>
+        )
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-export type CategoryKey = "dns" | "tls" | "waf" | "origin" | "cache" | "rateLimit" | "bot";
+export type CategoryKey = "dns" | "tls" | "waf" | "origin" | "cache" | "rateLimit" | "bot" | "apiProtection" | "logging";
 
 export interface DesignOption {
   id: string;
@@ -75,6 +75,22 @@ export const CATEGORIES: DesignCategory[] = [
       { id: "bot-management", label: "Bot Management", tags: ["bot-basic", "bot-advanced"] },
     ],
   },
+  {
+    key: "apiProtection",
+    label: "API protection",
+    options: [
+      { id: "none", label: "None (general WAF only)", tags: [] },
+      { id: "api-shield", label: "API Shield (schema validation + discovery)", tags: ["api-schema-validation"] },
+    ],
+  },
+  {
+    key: "logging",
+    label: "Logging / SIEM export",
+    options: [
+      { id: "dashboard-only", label: "Dashboard analytics only", tags: [] },
+      { id: "logpush", label: "Logpush to SIEM", tags: ["siem-export"] },
+    ],
+  },
 ];
 
 export type Selections = Record<CategoryKey, string>;
@@ -87,6 +103,8 @@ export const DEFAULT_SELECTIONS: Selections = {
   cache: "disabled",
   rateLimit: "disabled",
   bot: "disabled",
+  apiProtection: "none",
+  logging: "dashboard-only",
 };
 
 export interface Requirement {
@@ -120,6 +138,8 @@ export const REQUIREMENTS: Requirement[] = [
       cache: "static",
       rateLimit: "key-endpoints",
       bot: "bot-management",
+      apiProtection: "none",
+      logging: "dashboard-only",
     },
   },
   {
@@ -136,14 +156,16 @@ export const REQUIREMENTS: Requirement[] = [
       cache: "disabled",
       rateLimit: "disabled",
       bot: "disabled",
+      apiProtection: "none",
+      logging: "dashboard-only",
     },
   },
   {
     id: "api-partner",
     title: "Public API consumed by partners",
     prompt:
-      "A public REST API needs abuse protection on high-value endpoints, strong origin protection, and encrypted, validated transport end-to-end, without over-caching dynamic responses.",
-    requiredTags: ["edge-visibility", "waf-signatures", "rate-limiting", "tls-origin-validated", "origin-ip-hardened"],
+      "A public REST API needs abuse protection on high-value endpoints, strong origin protection, schema-aware request validation, and encrypted, validated transport end-to-end, without over-caching dynamic responses.",
+    requiredTags: ["edge-visibility", "waf-signatures", "rate-limiting", "tls-origin-validated", "origin-ip-hardened", "api-schema-validation"],
     idealSelections: {
       dns: "proxied",
       tls: "full-strict",
@@ -152,6 +174,40 @@ export const REQUIREMENTS: Requirement[] = [
       cache: "disabled",
       rateLimit: "key-endpoints",
       bot: "bot-management",
+      apiProtection: "api-shield",
+      logging: "dashboard-only",
+    },
+  },
+  {
+    id: "architects-challenge",
+    title: "Architect's Challenge — global e-commerce platform",
+    prompt:
+      "An e-commerce company has: 5 million monthly visitors, an AWS-hosted application, a public API, global users, bot scraping of its catalog, credential-stuffing attempts against login, a high-availability requirement, a Microsoft Sentinel SIEM deployment, and a requirement to fully hide its origin infrastructure. Design the architecture.",
+    requiredTags: [
+      "edge-visibility",
+      "ddos-l7-eligible",
+      "waf-signatures",
+      "waf-policy",
+      "bot-basic",
+      "bot-advanced",
+      "rate-limiting",
+      "tls-origin-validated",
+      "origin-ip-hardened",
+      "no-inbound-exposure",
+      "api-schema-validation",
+      "siem-export",
+      "caching-static",
+    ],
+    idealSelections: {
+      dns: "proxied",
+      tls: "full-strict",
+      waf: "managed-custom",
+      origin: "tunnel",
+      cache: "static",
+      rateLimit: "key-endpoints",
+      bot: "bot-management",
+      apiProtection: "api-shield",
+      logging: "logpush",
     },
   },
 ];
@@ -193,4 +249,6 @@ export const TAG_LABELS: Record<string, string> = {
   "rate-limiting": "Volume-based abuse protection",
   "bot-basic": "Basic automated-traffic filtering",
   "bot-advanced": "Advanced fingerprinting/behavioral bot detection",
+  "api-schema-validation": "Schema-aware API request validation (positive security model)",
+  "siem-export": "Continuous log export to an external SIEM",
 };

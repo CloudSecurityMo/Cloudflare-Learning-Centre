@@ -61,6 +61,9 @@ export const zeroTrust: TopicContent = {
         "Access is application-facing (who can reach this specific app). Gateway is network-facing (what can this user/device reach or send on the broader internet).",
     },
   ],
-  relatedTopics: ["proxying", "fundamentals"],
-  docs: [{ label: "Cloudflare Zero Trust — Cloudflare Docs", url: "https://developers.cloudflare.com/cloudflare-one/" }],
+  relatedTopics: ["proxying", "fundamentals", "tunnel"],
+  mentalModelSlugs: ["access-vs-gateway", "tunnel-vs-vpn"],
+  architectHref: "/labs/architecture-designer",
+  lastVerified: "2026-08-23",
+  officialSources: [{ title: "Cloudflare Zero Trust (Cloudflare One)", url: "https://developers.cloudflare.com/cloudflare-one/", sourceType: "cloudflare-documentation" }],
 };

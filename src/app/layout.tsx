@@ -22,9 +22,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cloudflare Architecture Lab",
+  title: "Cloudflare Architecture Lab — Architecture, Security & Troubleshooting",
   description:
-    "An interactive learning platform for understanding Cloudflare — DNS, proxying, WAF, TLS, Zero Trust, and the full request lifecycle from browser to origin.",
+    "An independent, interactive lab for how Cloudflare actually works in real deployments: trace requests, inspect security decisions, protect origins, troubleshoot incidents, and design architectures — verified against official Cloudflare documentation.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

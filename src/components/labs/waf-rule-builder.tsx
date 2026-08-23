@@ -6,7 +6,9 @@ import {
   ACTIONS,
   FIELDS,
   OPERATORS_FOR_KIND,
+  buildApiCall,
   buildExpression,
+  buildTerraform,
   type Action,
   type Condition,
   type Operator,
@@ -15,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AsciiDiagram } from "@/components/diagrams/ascii-diagram";
 import { useProgress } from "@/lib/progress";
 
@@ -153,6 +156,56 @@ export function WafRuleBuilder() {
             {(expression || "// add a condition value") + `\n\n→ ${action}`}
           </AsciiDiagram>
         </div>
+
+        <div>
+          <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            How you&apos;d configure this
+          </div>
+          <Tabs defaultValue="dashboard">
+            <TabsList className="h-8">
+              <TabsTrigger value="dashboard" className="text-xs">Dashboard</TabsTrigger>
+              <TabsTrigger value="terraform" className="text-xs">Terraform</TabsTrigger>
+              <TabsTrigger value="api" className="text-xs">API</TabsTrigger>
+            </TabsList>
+            <TabsContent value="dashboard">
+              <AsciiDiagram className="text-xs">
+                {`Security → WAF → Custom rules → Create rule\n\nField: (build via the visual expression editor,\n        or paste the expression above into "Edit expression")\nThen:  Choose action → ${action}\nThen:  Deploy`}
+              </AsciiDiagram>
+            </TabsContent>
+            <TabsContent value="terraform">
+              <AsciiDiagram className="text-xs">{buildTerraform(expression, action)}</AsciiDiagram>
+              <p className="mt-1.5 text-[11px] text-muted-foreground">
+                Illustrative — the general shape (resource type, zone_id, kind, phase, rules) matches the
+                cloudflare_ruleset resource, but always verify exact syntax against the{" "}
+                <a
+                  href="https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/ruleset"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-brand hover:underline"
+                >
+                  current Terraform provider docs
+                </a>
+                .
+              </p>
+            </TabsContent>
+            <TabsContent value="api">
+              <AsciiDiagram className="text-xs">{buildApiCall(expression, action)}</AsciiDiagram>
+              <p className="mt-1.5 text-[11px] text-muted-foreground">
+                Endpoint and body shape per the{" "}
+                <a
+                  href="https://developers.cloudflare.com/waf/custom-rules/create-api/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-brand hover:underline"
+                >
+                  Rulesets API docs
+                </a>
+                . Requires an existing http_request_firewall_custom entrypoint ruleset.
+              </p>
+            </TabsContent>
+          </Tabs>
+        </div>
+
         <div className="rounded-lg border border-border bg-card p-4 text-xs text-muted-foreground">
           <p className="mb-2">
             This mirrors Cloudflare&apos;s WAF Custom Rules expression syntax for teaching purposes — field

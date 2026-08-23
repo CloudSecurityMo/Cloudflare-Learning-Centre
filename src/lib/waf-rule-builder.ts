@@ -49,6 +49,17 @@ export type Action = "Block" | "Managed Challenge" | "JS Challenge" | "Interacti
 
 export const ACTIONS: Action[] = ["Block", "Managed Challenge", "JS Challenge", "Interactive Challenge", "Skip", "Log"];
 
+// API/Terraform action string values, per the Rulesets API.
+// See: developers.cloudflare.com/waf/custom-rules/create-api/
+export const ACTION_API_VALUE: Record<Action, string> = {
+  Block: "block",
+  "Managed Challenge": "managed_challenge",
+  "JS Challenge": "js_challenge",
+  "Interactive Challenge": "challenge",
+  Skip: "skip",
+  Log: "log",
+};
+
 function formatValue(field: FieldDef, operator: Operator, value: string): string {
   if (operator === "in") {
     const items = value
@@ -84,4 +95,37 @@ export function buildExpression(conditions: Condition[], combinator: "and" | "or
   if (parts.length === 0) return "";
   if (parts.length === 1) return parts[0];
   return parts.map((p) => `(${p})`).join(combinator === "and" ? "\nand " : "\nor ");
+}
+
+// Illustrative representations only — see the "verify against current docs"
+// note shown alongside these in the UI. General shape (resource type, zone_id,
+// kind, phase, rules{action/expression/description}) matches the Terraform
+// registry's cloudflare_ruleset resource and the Rulesets API's rule-create
+// endpoint; exact HCL attribute syntax may have moved on since.
+export function buildTerraform(expression: string, action: Action): string {
+  const expr = expression || 'http.request.uri.path eq "/admin"';
+  return `resource "cloudflare_ruleset" "custom_rule" {
+  zone_id = var.cloudflare_zone_id
+  name    = "Custom rule (illustrative)"
+  kind    = "zone"
+  phase   = "http_request_firewall_custom"
+
+  rules = [{
+    description = "Created in the WAF Rule Builder lab"
+    expression  = "${expr.replace(/\n/g, " ")}"
+    action      = "${ACTION_API_VALUE[action]}"
+  }]
+}`;
+}
+
+export function buildApiCall(expression: string, action: Action): string {
+  const expr = expression || 'http.request.uri.path eq "/admin"';
+  return `curl -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/rulesets/$RULESET_ID/rules" \\
+  -H "Authorization: Bearer $CF_API_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  --data '{
+    "description": "Created in the WAF Rule Builder lab",
+    "expression": "${expr.replace(/\n/g, " ").replace(/"/g, '\\"')}",
+    "action": "${ACTION_API_VALUE[action]}"
+  }'`;
 }

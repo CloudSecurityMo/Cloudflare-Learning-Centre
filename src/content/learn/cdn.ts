@@ -25,7 +25,7 @@ export const cdn: TopicContent = {
     },
     {
       heading: "HIT vs MISS",
-      body: "Cache HIT: Cloudflare's edge already holds a valid cached copy for this cache key and serves it directly — the origin is never contacted, and response time is dramatically lower.\nCache MISS: no valid cached copy exists (or it expired). Cloudflare forwards the request to the origin, receives the response, stores it (if cacheable) for the next matching request, and returns it to the client. The cf-cache-status response header shows HIT, MISS, DYNAMIC, EXPIRED, or BYPASS.",
+      body: "Cache HIT: Cloudflare's edge already holds a valid cached copy for this cache key and serves it directly — the origin is never contacted, and response time is dramatically lower.\nCache MISS: no valid cached copy exists (or it expired). Cloudflare forwards the request to the origin, receives the response, stores it (if cacheable) for the next matching request, and returns it to the client. The cf-cache-status response header reports which of these happened: HIT, MISS, EXPIRED (cached but stale, refetched from origin), BYPASS (eligible but the origin's response wasn't cacheable — e.g. it set Cache-Control: no-store), DYNAMIC (not eligible for caching at all, no cache lookup performed), REVALIDATED (origin confirmed the cached copy is still current via a conditional request), or STALE (cache expired and the origin couldn't be reached, so the stale copy was served anyway).",
       diagram:
         "MISS:  Browser -> Cloudflare (no cached copy) -> Origin -> Response -> Cloudflare stores + returns\n" +
         "HIT:   Browser -> Cloudflare (cached copy found) -> Response returned directly, origin untouched",
@@ -88,5 +88,12 @@ export const cdn: TopicContent = {
     },
   ],
   relatedTopics: ["proxying", "waf"],
-  docs: [{ label: "Caching — Cloudflare Docs", url: "https://developers.cloudflare.com/cache/" }],
+  mentalModelSlugs: ["cdn-vs-waf"],
+  architectHref: "/labs/troubleshooting",
+  lastVerified: "2026-08-23",
+  officialSources: [
+    { title: "Caching overview", url: "https://developers.cloudflare.com/cache/", sourceType: "cloudflare-documentation" },
+    { title: "Cache Rules", url: "https://developers.cloudflare.com/cache/how-to/cache-rules/", sourceType: "cloudflare-documentation" },
+    { title: "Cloudflare cache responses (cf-cache-status)", url: "https://developers.cloudflare.com/cache/concepts/cache-responses/", sourceType: "cloudflare-documentation" },
+  ],
 };

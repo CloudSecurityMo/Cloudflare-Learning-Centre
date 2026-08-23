@@ -9,14 +9,15 @@ export default function Home() {
     <div className="mx-auto flex max-w-5xl flex-col gap-14 px-4 py-12 sm:px-6 lg:px-8">
       <section className="flex flex-col items-center gap-4 text-center">
         <span className="rounded-full border border-border bg-muted/40 px-3 py-1 text-xs font-medium text-muted-foreground">
-          Cloudflare Architecture Lab
+          Architecture, Security &amp; Troubleshooting Lab
         </span>
         <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
           Understand Cloudflare from DNS to the Origin.
         </h1>
         <p className="max-w-xl text-balance text-muted-foreground">
-          Learn how Cloudflare actually works by designing architectures, tracing requests, configuring
-          security controls, and troubleshooting real-world scenarios.
+          Not another docs mirror. Trace requests, inspect why each security decision was made, protect an
+          origin, troubleshoot real incidents, and design architectures — content verified against official
+          Cloudflare documentation, not third-party guides.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
           <Button asChild className="gap-1.5">
@@ -25,7 +26,7 @@ export default function Home() {
             </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="/labs/request-flow-simulator">Try the Request Simulator</Link>
+            <Link href="/labs/request-flow-simulator">Try the Request Decision Engine</Link>
           </Button>
         </div>
       </section>

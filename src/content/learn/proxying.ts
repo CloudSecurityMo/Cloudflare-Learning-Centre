@@ -90,9 +90,14 @@ export const proxying: TopicContent = {
     },
   ],
   relatedTopics: ["dns", "fundamentals", "ssl-tls"],
-  docs: [
-    { label: "Cloudflare HTTP headers — Cloudflare Docs", url: "https://developers.cloudflare.com/fundamentals/reference/http-headers/" },
-    { label: "Authenticated Origin Pulls — Cloudflare Docs", url: "https://developers.cloudflare.com/ssl/origin-configuration/authenticated-origin-pull/" },
-    { label: "Protect your origin server — Cloudflare Docs", url: "https://developers.cloudflare.com/fundamentals/security/protect-your-origin-server/" },
+  mentalModelSlugs: ["dns-vs-proxy"],
+  applyLabHref: "/labs/origin-inspector",
+  architectHref: "/labs/origin-protection",
+  lastVerified: "2026-08-23",
+  officialSources: [
+    { title: "Cloudflare HTTP headers", url: "https://developers.cloudflare.com/fundamentals/reference/http-headers/", sourceType: "cloudflare-documentation" },
+    { title: "Authenticated Origin Pulls (mTLS)", url: "https://developers.cloudflare.com/ssl/origin-configuration/authenticated-origin-pull/", sourceType: "cloudflare-documentation" },
+    { title: "Protect your origin server", url: "https://developers.cloudflare.com/fundamentals/security/protect-your-origin-server/", sourceType: "cloudflare-documentation" },
+    { title: "Cloudflare IP addresses", url: "https://developers.cloudflare.com/fundamentals/concepts/cloudflare-ip-addresses/", sourceType: "cloudflare-documentation" },
   ],
 };
