@@ -28,12 +28,14 @@ interface ProgressState {
   completedTopics: Record<string, boolean>;
   labsCompleted: Record<string, boolean>;
   scenariosCompleted: Record<string, boolean>;
+  visitedResources: Record<string, boolean>;
   quizAttempts: QuizAttempt[];
   notes: Note[];
   openQuestions: Question[];
   markTopicComplete: (slug: string) => void;
   markLabComplete: (slug: string) => void;
   markScenarioComplete: (slug: string) => void;
+  markResourceVisited: (path: string) => void;
   toggleTopicComplete: (slug: string) => void;
   toggleLabComplete: (slug: string) => void;
   toggleScenarioComplete: (slug: string) => void;
@@ -42,14 +44,17 @@ interface ProgressState {
   removeNote: (id: string) => void;
   addQuestion: (topicSlug: string, body: string) => void;
   removeQuestion: (id: string) => void;
+  exportProgress: () => string;
+  importProgress: (json: string) => boolean;
 }
 
 export const useProgress = create<ProgressState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       completedTopics: {},
       labsCompleted: {},
       scenariosCompleted: {},
+      visitedResources: {},
       quizAttempts: [],
       notes: [],
       openQuestions: [],
@@ -59,6 +64,8 @@ export const useProgress = create<ProgressState>()(
         set((s) => ({ labsCompleted: { ...s.labsCompleted, [slug]: true } })),
       markScenarioComplete: (slug) =>
         set((s) => ({ scenariosCompleted: { ...s.scenariosCompleted, [slug]: true } })),
+      markResourceVisited: (path) =>
+        set((s) => (s.visitedResources[path] ? s : { visitedResources: { ...s.visitedResources, [path]: true } })),
       toggleTopicComplete: (slug) =>
         set((s) => ({ completedTopics: { ...s.completedTopics, [slug]: !s.completedTopics[slug] } })),
       toggleLabComplete: (slug) =>
@@ -80,6 +87,39 @@ export const useProgress = create<ProgressState>()(
         })),
       removeQuestion: (id) =>
         set((s) => ({ openQuestions: s.openQuestions.filter((q) => q.id !== id) })),
+      exportProgress: () => {
+        const s = get();
+        const snapshot = {
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          completedTopics: s.completedTopics,
+          labsCompleted: s.labsCompleted,
+          scenariosCompleted: s.scenariosCompleted,
+          visitedResources: s.visitedResources,
+          quizAttempts: s.quizAttempts,
+          notes: s.notes,
+          openQuestions: s.openQuestions,
+        };
+        return JSON.stringify(snapshot, null, 2);
+      },
+      importProgress: (json) => {
+        try {
+          const data = JSON.parse(json);
+          if (typeof data !== "object" || data === null) return false;
+          set({
+            completedTopics: data.completedTopics ?? {},
+            labsCompleted: data.labsCompleted ?? {},
+            scenariosCompleted: data.scenariosCompleted ?? {},
+            visitedResources: data.visitedResources ?? {},
+            quizAttempts: Array.isArray(data.quizAttempts) ? data.quizAttempts : [],
+            notes: Array.isArray(data.notes) ? data.notes : [],
+            openQuestions: Array.isArray(data.openQuestions) ? data.openQuestions : [],
+          });
+          return true;
+        } catch {
+          return false;
+        }
+      },
     }),
     {
       name: "cf-architecture-lab-progress",

@@ -11,6 +11,8 @@ import { NotesPanel } from "@/components/learn/notes-panel";
 import { MentalModelCard } from "@/components/learn/mental-model";
 import { SourceVerification } from "@/components/learn/source-verification";
 import { LearningLevelBar } from "@/components/learn/learning-level-bar";
+import { LinkifiedText } from "@/components/learn/linkified-text";
+import { linkifyParagraphs } from "@/lib/inline-links";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -26,6 +28,18 @@ const DIFFICULTY_COLOR: Record<TopicContent["difficulty"], string> = {
 export function TopicPage({ topic }: { topic: TopicContent }) {
   const isComplete = useProgress((s) => !!s.completedTopics[topic.slug]);
   const toggleTopicComplete = useProgress((s) => s.toggleTopicComplete);
+  const excludeHref = `/learn/${topic.slug}`;
+
+  // Linkify every concept paragraph in one pure pass so each glossary term
+  // is auto-linked at most once across the whole page — repeating the same
+  // link every paragraph would just be visual noise. Computed eagerly here
+  // (rather than a mutable Set threaded through each paragraph's render) so
+  // the result only depends on `topic`, not on how many times React
+  // happens to re-render any given child.
+  const conceptParagraphs = topic.concepts.map((c) => c.body.split("\n\n"));
+  const flatSegments = linkifyParagraphs(conceptParagraphs.flat(), excludeHref);
+  let flatIndex = 0;
+  const conceptSegments = conceptParagraphs.map((paras) => paras.map(() => flatSegments[flatIndex++]));
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
@@ -54,7 +68,7 @@ export function TopicPage({ topic }: { topic: TopicContent }) {
           {isComplete ? <CheckCircle2 className="size-4" /> : <Circle className="size-4" />}
           {isComplete ? "Completed" : "Mark as complete"}
         </Button>
-        <LearningLevelBar activeLevel="understand" applyHref={topic.applyLabHref} architectHref={topic.architectHref} />
+        <LearningLevelBar topicSlug={topic.slug} applyHref={topic.applyLabHref} architectHref={topic.architectHref} />
       </div>
 
       <Section title="Learning Objectives">
@@ -73,9 +87,9 @@ export function TopicPage({ topic }: { topic: TopicContent }) {
           {topic.concepts.map((c, i) => (
             <div key={i} className="flex flex-col gap-2">
               <h3 className="text-sm font-semibold">{c.heading}</h3>
-              {c.body.split("\n\n").map((para, pi) => (
+              {conceptSegments[i].map((segments, pi) => (
                 <p key={pi} className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                  {para}
+                  <LinkifiedText segments={segments} />
                 </p>
               ))}
               {c.diagram && <AsciiDiagram>{c.diagram}</AsciiDiagram>}

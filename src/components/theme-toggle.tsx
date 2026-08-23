@@ -1,21 +1,9 @@
 "use client";
 
-import * as React from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-
-function noopSubscribe() {
-  return () => {};
-}
-
-function useHasMounted() {
-  return React.useSyncExternalStore(
-    noopSubscribe,
-    () => true,
-    () => false
-  );
-}
+import { useHasMounted } from "@/lib/use-has-mounted";
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();

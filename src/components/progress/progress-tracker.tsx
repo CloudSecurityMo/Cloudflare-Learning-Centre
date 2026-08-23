@@ -8,13 +8,13 @@ import { SCENARIOS } from "@/content/scenarios";
 import { LABS } from "@/lib/labs";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
+import { ProgressBackup } from "@/components/progress/progress-backup";
 import { cn } from "@/lib/utils";
 
 function TrackerCheckbox({ checked }: { checked: boolean }) {
   return (
     <span
-      role="checkbox"
-      aria-checked={checked}
+      aria-hidden="true"
       className={cn(
         "flex size-4 shrink-0 items-center justify-center rounded-[4px] border transition-colors",
         checked ? "border-brand bg-brand text-brand-foreground" : "border-input"
@@ -60,20 +60,24 @@ function TrackerSection({
           {items.map((item) => {
             const isDone = !!completed[item.slug];
             return (
-              <div
-                key={item.slug}
-                onClick={() => onToggle(item.slug)}
-                className="flex cursor-pointer items-center gap-3 py-2.5 first:pt-0 last:pb-0"
-              >
-                <TrackerCheckbox checked={isDone} />
-                <span className={isDone ? "flex-1 text-sm text-muted-foreground line-through" : "flex-1 text-sm"}>
-                  {item.label}
-                  {item.meta && <span className="ml-2 text-xs text-muted-foreground/70">{item.meta}</span>}
-                </span>
+              <div key={item.slug} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={isDone}
+                  aria-label={`${item.label}${item.meta ? `, ${item.meta}` : ""} — mark as ${isDone ? "not done" : "done"}`}
+                  onClick={() => onToggle(item.slug)}
+                  className="flex flex-1 items-center gap-3 rounded-sm text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                >
+                  <TrackerCheckbox checked={isDone} />
+                  <span className={isDone ? "flex-1 text-sm text-muted-foreground line-through" : "flex-1 text-sm"}>
+                    {item.label}
+                    {item.meta && <span className="ml-2 text-xs text-muted-foreground/70">{item.meta}</span>}
+                  </span>
+                </button>
                 <Link
                   href={item.href}
-                  onClick={(e) => e.stopPropagation()}
-                  className="shrink-0 text-muted-foreground hover:text-brand"
+                  className="shrink-0 rounded-sm text-muted-foreground outline-none hover:text-brand focus-visible:ring-2 focus-visible:ring-ring/50"
                   aria-label={`Open ${item.label}`}
                 >
                   <ArrowUpRight className="size-4" />
@@ -123,6 +127,7 @@ export function ProgressTracker() {
       <TrackerSection title="Learn Modules" items={learnItems} completed={completedTopics} onToggle={toggleTopicComplete} />
       <TrackerSection title="Labs" items={labItems} completed={labsCompleted} onToggle={toggleLabComplete} />
       <TrackerSection title="Scenarios" items={scenarioItems} completed={scenariosCompleted} onToggle={toggleScenarioComplete} />
+      <ProgressBackup />
     </div>
   );
 }

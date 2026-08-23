@@ -4,6 +4,7 @@ import * as React from "react";
 import { useSearchParams } from "next/navigation";
 import { DEPLOYMENT_MODELS } from "@/content/architecture/deployment-models";
 import { ArchitectureFlow } from "@/components/diagrams/architecture-flow";
+import { ResourceVisitTracker } from "@/components/resource-visit-tracker";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -22,6 +23,7 @@ function DeploymentModelsContent() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+      <ResourceVisitTracker path="/architecture/deployment-models" />
       <div className="mb-8">
         <h1 className="text-3xl font-semibold tracking-tight">Deployment Models</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">

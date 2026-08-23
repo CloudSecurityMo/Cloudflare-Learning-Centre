@@ -16,6 +16,7 @@ export const LABS: LabRef[] = [
   { slug: "origin-inspector", label: "Origin Inspector", href: "/labs/origin-inspector" },
   { slug: "origin-protection", label: "Origin Protection Lab", href: "/labs/origin-protection" },
   { slug: "bot-lab", label: "Bot Detection Lab", href: "/labs/bot-lab" },
+  { slug: "rate-limit-lab", label: "Rate Limiting Lab", href: "/labs/rate-limit-lab" },
   { slug: "request-flow-simulator", label: "Request Decision Engine", href: "/labs/request-flow-simulator" },
   { slug: "product-decision-engine", label: "Product Decision Engine", href: "/labs/product-decision-engine" },
   { slug: "troubleshooting", label: "Troubleshooting Academy", href: "/labs/troubleshooting" },

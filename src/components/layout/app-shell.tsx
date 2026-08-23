@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu, ShieldHalf } from "lucide-react";
 import { SidebarNav } from "./sidebar-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CommandPalette } from "@/components/search/command-palette";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
@@ -47,12 +48,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               Cloudflare Architecture Lab
             </Link>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
+            <CommandPalette />
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
               <Link href="/progress">Progress</Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-              <Link href="/reference/glossary">Glossary</Link>
             </Button>
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
               <Link href="/labs/troubleshooting">Troubleshoot</Link>
