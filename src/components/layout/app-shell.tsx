@@ -15,10 +15,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-svh w-full">
       <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar lg:block">
-        <div className="flex h-14 items-center gap-2 border-b border-border px-4">
+        <Link
+          href="/"
+          className="flex h-14 items-center gap-2 border-b border-border px-4 transition-colors hover:bg-accent"
+        >
           <ShieldHalf className="size-5 text-brand" />
           <span className="text-sm font-semibold tracking-tight">Cloudflare Architecture Lab</span>
-        </div>
+        </Link>
         <div className="h-[calc(100svh-3.5rem)]">
           <SidebarNav />
         </div>
@@ -35,10 +38,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </SheetTrigger>
               <SheetContent side="left" className="w-72 p-0">
                 <SheetTitle className="sr-only">Navigation</SheetTitle>
-                <div className="flex h-14 items-center gap-2 border-b border-border px-4">
+                <Link
+                  href="/"
+                  onClick={() => setOpen(false)}
+                  className="flex h-14 items-center gap-2 border-b border-border px-4 transition-colors hover:bg-accent"
+                >
                   <ShieldHalf className="size-5 text-brand" />
                   <span className="text-sm font-semibold tracking-tight">Architecture Lab</span>
-                </div>
+                </Link>
                 <div className="h-[calc(100svh-3.5rem)]">
                   <SidebarNav onNavigate={() => setOpen(false)} />
                 </div>
