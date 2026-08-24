@@ -1,10 +1,31 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowDown, Globe, Network, ShieldCheck, Server } from "lucide-react";
 import { NodeDetailSheet } from "@/components/diagrams/node-detail-sheet";
 import { cn } from "@/lib/utils";
+
+/** A small dot that travels the connector on a loop, evoking a request flowing down the chain. */
+function FlowConnector({ delay = 0 }: { delay?: number }) {
+  const reduceMotion = useReducedMotion();
+  return (
+    <div className="relative flex h-8 w-4 items-center justify-center">
+      <div className="h-full w-px bg-border" />
+      <ArrowDown className="absolute -bottom-0.5 size-4 text-muted-foreground" />
+      {!reduceMotion && (
+        <motion.span
+          aria-hidden
+          className="absolute left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-brand"
+          style={{ boxShadow: "0 0 6px 1px var(--brand)" }}
+          initial={{ top: "0%", opacity: 0 }}
+          animate={{ top: ["0%", "75%"], opacity: [0, 1, 1, 0] }}
+          transition={{ duration: 1.3, repeat: Infinity, repeatDelay: 2.3, delay, ease: "easeInOut" }}
+        />
+      )}
+    </div>
+  );
+}
 
 const CF_CAPABILITIES = [
   { slug: "edge-tls", label: "TLS" },
@@ -54,9 +75,9 @@ export function HeroArchitecture() {
   return (
     <div className="flex flex-col items-center gap-1 rounded-xl border border-border bg-grid bg-card/40 px-4 py-10">
       <NodeBox icon={<Globe className="size-4" />} title="Internet / Browser" onClick={() => show("internet")} />
-      <ArrowDown className="size-4 text-muted-foreground" />
+      <FlowConnector delay={0} />
       <NodeBox icon={<Network className="size-4" />} title="DNS Resolution" onClick={() => show("dns")} />
-      <ArrowDown className="size-4 text-muted-foreground" />
+      <FlowConnector delay={0.4} />
 
       <div className="w-full max-w-2xl rounded-xl border-2 border-brand/40 bg-brand/5 p-4">
         <div className="mb-3 flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand">
@@ -69,7 +90,7 @@ export function HeroArchitecture() {
         </div>
       </div>
 
-      <ArrowDown className="size-4 text-muted-foreground" />
+      <FlowConnector delay={0.8} />
       <div className="flex flex-col items-center gap-1">
         <NodeBox icon={<Server className="size-4" />} title="Origin" onClick={() => show("origin")} />
         <div className="mt-1 flex flex-wrap justify-center gap-1.5 text-[11px] text-muted-foreground">
